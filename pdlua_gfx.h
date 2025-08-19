@@ -23,6 +23,28 @@
 
 #ifdef PURR_DATA
 
+// Compatibility with WebPdL2Ork. WebPdL2Ork receives data in a slightly
+// different way (via messages, rather than gui sockets). These macros
+// adapt the vmesses used in this file to work with WebPdL2Ork with
+// minimal disruption.
+#ifdef WEBPDL2ORK
+#include "webvmess.h"
+const char* pdlua_resolve_vmess(void *x) {
+    t_pdlua *obj = (t_pdlua*)x;
+    const char* result = calloc(10, sizeof(char));
+    sprintf(result, "lua_%d", obj->lua_id);
+
+    return result;
+}
+
+static void *obj = NULL;
+#define gui_vmess(...) webpdl2ork_vmess(obj, &pdlua_resolve_vmess, __VA_ARGS__)
+#define gui_start_vmess webpdl2ork_start_vmess
+#define gui_s webpdl2ork_s
+#define gui_f webpdl2ork_f
+#define gui_end_vmess() webpdl2ork_end_vmess(obj, &pdlua_resolve_vmess)
+#endif
+
 // Port of the vanilla gfx interface to Purr Data. There are some differences
 // in the zoom API which Purr Data does directly on the canvas, so we can just
 // always assume a zoom factor of 1. Other API differences are dealt with on
@@ -1582,3 +1604,11 @@ static int free_path(lua_State* L)
     freebytes(path->path_segments, path->num_path_segments_allocated * sizeof(int));
     return 0;
 }
+
+#ifdef WEBPDL2ORK
+#undef gui_vmess
+#undef gui_start_vmess
+#undef gui_s
+#undef gui_f
+#undef gui_end_vmess
+#endif

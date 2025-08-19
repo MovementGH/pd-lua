@@ -56,7 +56,6 @@ pd._constructor = function (name, atoms)
   if nil ~= pd._classes[fullpath] then
     local o = pd._classes[fullpath]:new():construct(name, atoms)
     if o then
-      pd._objects[o._object] = o
       return o._object
     end
   end
@@ -360,6 +359,7 @@ function pd.Class:construct(sel, atoms)
   if self:initialize(sel, atoms) then
     pd._createinlets(self._object, self.inlets)
     pd._createoutlets(self._object, self.outlets)
+    pd._objects[self._object] = self
     if type(self.paint) == "function" then
         pd._creategui(self._object)
     end

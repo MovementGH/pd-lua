@@ -73,6 +73,9 @@ typedef struct pdlua
     t_class                 *pdlua_class;     // Holds our class pointer.
     t_class                 *pdlua_class_gfx; // Holds our gfx class pointer.
     t_signal                **sp;             // Array of signal pointers for multichannel audio.
+#ifdef WEBPDL2ORK
+    int                     lua_id;           // ID for WebPDL2ORK to track this object
+#endif
 } t_pdlua;
 
 lua_State* __L();

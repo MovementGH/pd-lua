@@ -387,6 +387,11 @@ static void pdlua_proxyinlet_anything
     t_atom              *argv /**< The atoms in the message. */
 )
 {
+#ifdef WEBPDL2ORK
+    if(s == gensym("mouse_event"))
+        pdlua_gfx_mouse_event(p->owner, atom_getint(&argv[0]), atom_getint(&argv[1]), atom_getint(&argv[2]));
+    else
+#endif
     pdlua_dispatch(p->owner, p->id, s, argc, argv);
 }
 
@@ -1457,6 +1462,13 @@ static int pdlua_object_new(lua_State *L)
 #else
                 // NULL until plugdata overrides them with something useful
                 o->gfx.plugdata_draw_callback = NULL;
+#endif
+#ifdef WEBPDL2ORK
+                static int next_lua_id = 0;
+                if(strcmp(c->c_name->s_name, "pdlua") && strcmp(c->c_name->s_name, "pdluax"))
+                    o->lua_id = ++next_lua_id;
+                else
+                    o->lua_id = 0;
 #endif
                 
                 lua_pushlightuserdata(L, o);
